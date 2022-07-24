@@ -1,4 +1,4 @@
-#include "server.c"
+#include "server.h"
 
 //读取配置文件中的key
 char *getKey(const char *line, char *key)
@@ -55,7 +55,7 @@ void configInit(const char *path, char *ip, int *port, int *connectSize,
         else if(!strcmp(key, "port")){
             *port = atoi(value);
             //printf("port= %d\n", *port);
-        }else if(!strcmp(ket, "connectSize")){
+        }else if(!strcmp(key, "connectSize")){
             *connectSize = atoi(value);
         }
         else if(!strcmp(key, "thread_num")){

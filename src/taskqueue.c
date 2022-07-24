@@ -34,7 +34,7 @@ int queueSize(const pTaskQueue_t queue) //获取大小
     return queue->size;
 }
 
-void taskEnqueue(pTaskQueue_t queue, const int peerfd, const char cmd) //入队
+void taskEnqueue(pTaskQueue_t queue, const int peerfd) //入队
 {
     //第一步就要上锁
     int ret = pthread_mutex_lock(&queue->mutex);
@@ -46,7 +46,6 @@ void taskEnqueue(pTaskQueue_t queue, const int peerfd, const char cmd) //入队
         //后期可以看要不把所有的申请空间函数加一个判错，写入日志
         qNode->peerfd = peerfd;
         qNode->next = NULL;
-        strcpy(qNode->cmd, cmd);
         
         //如果是队列为空，那就需要把头尾指针都指向这个元素
         //若非空，就只用加入表中，并把尾指针加一
@@ -67,7 +66,7 @@ void taskEnqueue(pTaskQueue_t queue, const int peerfd, const char cmd) //入队
 }
 
 //出队，返回存储的peerfd，若出错，则返回-1
-int taskDequeue(pTaskQueue_t queue, char *cmd)
+int taskDequeue(pTaskQueue_t queue)
 {
     int ret = pthread_mutex_lock(&queue->mutex);
     THREAD_ERROR_CHECK(ret, "pthread_mutex_lock in taskDequeue");
@@ -80,7 +79,6 @@ int taskDequeue(pTaskQueue_t queue, char *cmd)
     int retFd = -1;
     qNode_t *temp = queue->front;
     retFd = queue->front->peerfd;
-    strcpy(cmd, qNode->cmd);
     if(queueSize(queue)){
         queue->front = queue->front->next;
     }else{

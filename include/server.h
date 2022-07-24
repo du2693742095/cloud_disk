@@ -34,24 +34,6 @@
 #define EXIT_FLAG 1
 #define CONTINUE_FLAG 0
 
-//指令集
-typedef enum CMD{
-    CMD_TYPE_OTHERS = -1,
-    CMD_TYPE_EXIT,
-    CMD_TYPE_CD,
-    CMD_TYPE_MV,
-    CMD_TYPE_CP,
-    CMD_TYPE_LS,
-    CMD_TYPE_LL,
-    CMD_TYPE_PWD,
-    CMD_TYPE_PUTS,
-    CMD_TYPE_GETS,
-    CMD_TYPE_RM,
-    CMD_TYPE_MKDIR
-
-} cmdType;
-
-
 // 检查参数是否正确
 #define ARG_CHECK(argc, standard)\
     if(argc != standard){ \
@@ -74,9 +56,5 @@ typedef enum CMD{
 void configInit(const char *path, char *ip, int *port, int *connectSize,
                 int *threadNum, int *tastQueueSize);
 
-
-/*___________________command.c_______________________*/
-//分析指令
-cmdType analyzeCmd(char *cmd);
 
 #endif

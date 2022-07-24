@@ -1,5 +1,5 @@
 #include "threadPoll.h"
-#include "function.h"
+#include "instruction.h"
 
 //初始化线程池，顺便创建任务队列
 void threadPoll_Init(pThreadPoll_t threadPoll, const int threadSize, const int tastQueueSize)
@@ -31,38 +31,18 @@ void threadPoll_Start(pThreadPoll_t threadPoll)
 void * threaddFunc(void *argv)
 {
     pThreadPoll_t threadPoll = (threadPoll_t *)argv;
-    while(true){
-        char cmd[CMD_LENTH] = {0};
-        int peerfd = taskDequeue(threadPoll->queue, cmd);
-        //将命令转化为宏
-        cmdType ins = analyzeCmd(cmd);
-        switch(ins){
-            case CMD_TYPE_CD:
-                break;
-            case CMD_TYPE_MV:
-                break;
-            case CMD_TYPE_CP:
-                break;
-            case CMD_TYPE_LS:
-                break;
-            case CMD_TYPE_LL:
-                break;
-            case CMD_TYPE_PWD:
-                break;
-            case CMD_TYPE_PUTS:
-                break;
-            case CMD_TYPE_GETS:
-                break;
-            case CMD_TYPE_RM:
-                break;
-            case CMD_TYPE_MKDIR:
-                break;
-            default:
-                errorCmd_Func();
-                break;
-        }
-    }
 
+    while(true){
+        int peerfd = taskDequeue(threadPoll->queue);
+        //接收命令（内含判错）
+        int ret = 0;
+        do {
+            //接收函数
+            cmd_hdl_t *cmdBuff = recvCmd(peerfd);
+            //处理命令
+            ret = handleCmd(cmdBuff, peerfd);
+        }while(-1 != ret);
+    }
     pthread_exit(0);
 }
 
