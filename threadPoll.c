@@ -1,4 +1,5 @@
 #include "threadPoll.h"
+#include "function.h"
 
 //初始化线程池，顺便创建任务队列
 void threadPoll_Init(pThreadPoll_t threadPoll, const int threadSize, const int tastQueueSize)
@@ -34,7 +35,35 @@ void * threaddFunc(void *argv)
         char cmd[CMD_LENTH] = {0};
         int peerfd = taskDequeue(threadPoll->queue, cmd);
         //将命令转化为宏
-        int ins = analyzeCmd(cmd);
-        
+        cmdType ins = analyzeCmd(cmd);
+        switch(ins){
+            case CMD_TYPE_CD:
+                break;
+            case CMD_TYPE_MV:
+                break;
+            case CMD_TYPE_CP:
+                break;
+            case CMD_TYPE_LS:
+                break;
+            case CMD_TYPE_LL:
+                break;
+            case CMD_TYPE_PWD:
+                break;
+            case CMD_TYPE_PUTS:
+                break;
+            case CMD_TYPE_GETS:
+                break;
+            case CMD_TYPE_RM:
+                break;
+            case CMD_TYPE_MKDIR:
+                break;
+            default:
+                errorCmd_Func();
+                break;
+        }
     }
+
+    pthread_exit(0);
 }
+
+

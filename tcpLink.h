@@ -3,7 +3,7 @@
 
 #include "server.h"
 
-// 创建listenfd
+// 创建listenfd，返回listenfd的值
 int createListenfd(const char *ip, const int port );
 
 //修改监听事件模式函数

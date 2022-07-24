@@ -28,7 +28,7 @@ char *getValue(const char *line, char *value)
 }
 
 //读取配置文件
-void configInit(const char *path, char *ip, int *port,
+void configInit(const char *path, char *ip, int *port, int *connectSize,
                 int *threadNum, int *tastQueueSize)
 {
     FILE *file = fopen(path, "r");
@@ -55,6 +55,8 @@ void configInit(const char *path, char *ip, int *port,
         else if(!strcmp(key, "port")){
             *port = atoi(value);
             //printf("port= %d\n", *port);
+        }else if(!strcmp(ket, "connectSize")){
+            *connectSize = atoi(value);
         }
         else if(!strcmp(key, "thread_num")){
             *threadNum = atoi(value);
