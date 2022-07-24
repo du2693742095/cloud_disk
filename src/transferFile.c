@@ -1,4 +1,4 @@
-#include "server.h"
+#include "transferFile.h"
 
 // 获取路径下的文件名
 void getFileNameByPath(char *path, int pathLen, char *fileName)
@@ -21,7 +21,7 @@ int transferFile_Uncopy(char *path, const int peerfd)
     fileName.lenth = strlen(fileName.buff);
     int ret = send(peerfd, &fileName, 
                    sizeof(ssize_t) + fileName.lenth, MSG_WAITALL);
-    SEND_CHECK(ret, "send in transferFile_Uncopy");
+    SEND_RECV_CHECK(ret, "send in transferFile_Uncopy");
 
     //获取文件信息长度并发送
     struct stat fileStat;
@@ -29,14 +29,15 @@ int transferFile_Uncopy(char *path, const int peerfd)
     ssize_t fileLen = fileStat.st_size;
     printf("    > file is %s, filesize is %ld.\n", fileName.buff, fileLen);
     ret = send(peerfd, &fileLen, sizeof(fileLen), MSG_WAITALL);
-    SEND_CHECK(ret, "send in transferFile_Uncopy"); 
+    SEND_RECV_CHECK(ret, "send in transferFile_Uncopy"); 
 
-    //通过零拷贝的splice传输文件，一次传输MSGLEN个长度
+    //通过零拷贝的splice传输文件，一次传输FILE_PRE_LENTH个长度
     int pipefd[2];
     pipe(pipefd);
     ssize_t sendLen = 0;
     while(sendLen < fileLen){
-        ssize_t msglen = splice(fd, NULL, pipefd[1], NULL, MSGLEN, SPLICE_F_MORE);
+        ssize_t msglen = splice(fd, NULL, pipefd[1], NULL, 
+                                FILE_PER_LENTH, SPLICE_F_MORE);
         msglen = splice(pipefd[0], NULL, peerfd, NULL, msglen, SPLICE_F_MORE);
         //处理链接关闭的情况
         if(0 == msglen) {
@@ -63,7 +64,7 @@ int transferFile(char *path, const int peerfd)
     fileNameTrain.lenth = strlen(fileNameTrain.buff);
     int ret = send(peerfd, &fileNameTrain, sizeof(ssize_t)
                    + fileNameTrain.lenth, MSG_WAITALL);
-    SEND_CHECK(ret, "send in transferFile");
+    SEND_RECV_CHECK(ret, "send in transferFile");
 
     //获取文件信息长度，并发送
     struct stat fileStat;
@@ -71,20 +72,20 @@ int transferFile(char *path, const int peerfd)
     ssize_t fileLen = fileStat.st_size;
     printf("    > file is %s, filesize is %ld.\n", fileNameTrain.buff, fileLen);
     ret = send(peerfd, &fileLen, sizeof(fileLen), MSG_WAITALL);
-    SEND_CHECK(ret, "send in transferFile");
+    SEND_RECV_CHECK(ret, "send in transferFile");
 
-    //构建小火车，一次发送MSGLEN个长度的数据
+    //构建小火车，一次发送FILE_PER_LENTH个长度的数据
     train_t fileTrain;
     ssize_t sendLen = 0;
     while(sendLen < fileLen){
         memset(&fileTrain, 0, sizeof(fileTrain));
         //读入数据，放到小火车数据段
-        int msglen = read(fd, fileTrain.buff, MSGLEN);
+        int msglen = read(fd, fileTrain.buff, FILE_PER_LENTH);
         fileTrain.lenth = msglen;
 
         msglen = send(peerfd, &fileTrain, sizeof(ssize_t)
                       + fileTrain.lenth, MSG_WAITALL);
-        SEND_CHECK(msglen, "send in transferFile");
+        SEND_RECV_CHECK(msglen, "send in transferFile");
         sendLen += msglen;
     }
     printf("send secceed.\n");
@@ -115,7 +116,7 @@ int recvFile_Uncopy(char *path, const int peerfd)
     pipe(pipefd);
     ssize_t recvLen = 0;
     do {
-        ssize_t msglen = splice(peerfd, NULL, pipefd[1], NULL, MSGLEN, SPLICE_F_MORE);
+        ssize_t msglen = splice(peerfd, NULL, pipefd[1], NULL, FILE_PER_LENTH, SPLICE_F_MORE);
         msglen = splice(pipefd[0], NULL, fd, NULL, msglen, SPLICE_F_MORE);
         //RECV_CHECK(msglen);
 
@@ -153,13 +154,13 @@ int recvFile(char *path, const int peerfd)
     //构建小火车，一次发送MSGLEN个长度的数据
     ssize_t recvLen = 0;
     do {
-        char buff[MSGLEN];
+        char buff[FILE_PER_LENTH];
         //读入数据，放到小火车数据段
         ssize_t msgLen;
         ret = recv(peerfd, &msgLen, sizeof(msgLen), MSG_WAITALL);
         ret = recv(peerfd, buff, msgLen, MSG_WAITALL);
         //RECV_CHECK(ret);
-        write(fd, buff, MSGLEN);
+        write(fd, buff, FILE_PER_LENTH);
         
         recvLen += msgLen;
         printf("has complete %5.2lf%%\r", 
