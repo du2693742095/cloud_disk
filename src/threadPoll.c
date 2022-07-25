@@ -18,7 +18,7 @@ void threadPoll_Destroy(pThreadPoll_t threadPoll)
     queueDestroy(threadPoll->queue);
 }
 
-//创建线程池
+//启动线程池
 void threadPoll_Start(pThreadPoll_t threadPoll)
 {
     for(int i = 0; i < threadPoll->threadNum; ++i){
@@ -41,7 +41,7 @@ void * threaddFunc(void *argv)
             cmd_hdl_t *cmdBuff = recvCmd(peerfd);
             //处理命令
             ret = handleCmd(cmdBuff, peerfd);
-        }while(-1 != ret);
+        }while(ret > 0);
     }
     pthread_exit(0);
 }

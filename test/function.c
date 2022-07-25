@@ -1,6 +1,5 @@
 #include "server.h"
 #include "function.h"
-#include "transferFile.h"
 
 //将当前目录切换
 int cdFunc(const cmd_hdl_t *cmdBuff, int peerfd)
@@ -223,32 +222,21 @@ int llFunc(const cmd_hdl_t *cmdBuff, int peerfd)
 //显示当前路径
 int pwdFunc(const cmd_hdl_t *cmdBuff, int peerfd)
 {
-    if(cmdBuff->argSize != 0){
-        send(peerfd, "error arguments.\n", 17, 0);
-        return -1;
-    }
-    char *buff = getcwd(NULL, 0);
-    int ret = send(peerfd, buff, strlen(buff), 0);
-    return ret;
-}
 
-//发送文件
+}
 int putsFunc(const cmd_hdl_t *cmdBuff, int peerfd)
 {
 
 }
-
-//接收文件
 int getsFunc(const cmd_hdl_t *cmdBuff, int peerfd)
 {
 
 }
 
-//删除文件或文件夹
 int rmFunc(const cmd_hdl_t *cmdBuff, int peerfd)
 {
     if(cmdBuff->argSize != 1){
-        send(peerfd, "error arguments.\n", 17, 0);
+        send(peerfd, "error arguments.", 17, 0);
         return -1;
     }
     char *path = (char *)cmdBuff->args[0].arg;
@@ -268,28 +256,20 @@ int rmFunc(const cmd_hdl_t *cmdBuff, int peerfd)
             unlink(fileName);
         }
         rmdir(path);
-        closedir(dp);
     }
     free(fstat);
 
     char info[] = "rm is succeed.\n";
     int ret = send(peerfd, info, sizeof(info), 0);
-    return ret;
+    return 0;
 }
 
 int mkdirFunc(const cmd_hdl_t *cmdBuff, int peerfd)
 {
-    if(cmdBuff->argSize != 1){
-        send(peerfd, "error arguments.\n", 17, 0);
-        return -1;
-    }
-    int ret = mkdir(cmdBuff->args[0].arg, 0664);
-    return ret;
+
 }
 
-//错误指令
 int errorCmdFunc(int peerfd)
 {
-    int ret = send(peerfd, "Invalid Commands.\n", 18, 0);
-    return ret;
+
 }
