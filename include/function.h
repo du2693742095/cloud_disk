@@ -23,7 +23,7 @@ int putsFunc(const cmd_hdl_t *cmdBuff, int peerfd);
 int getsFunc(const cmd_hdl_t *cmdBuff, int peerfd);
 int rmFunc(const cmd_hdl_t *cmdBuff, int peerfd);
 int mkdirFunc(const cmd_hdl_t *cmdBuff, int peerfd);
-int errorCmdFunc(void);
+int errorCmdFunc(int peerfd);
 
 #endif
 

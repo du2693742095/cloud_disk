@@ -263,7 +263,7 @@ int rmFunc(const cmd_hdl_t *cmdBuff, int peerfd)
         ERROR_CHECK(dp, NULL, "opendir in rm");
         struct dirent *director;
         while((director = readdir(dp)) != NULL){
-            char fileName[256] = {0};
+            char fileName[512] = {0};
             sprintf(fileName, "%s/%s", path, director->d_name);
             unlink(fileName);
         }

@@ -2,6 +2,7 @@
 #include "instruction.h"
 #include "function.h"
 
+
 //从peerfd中接收传输的小火车，将私有协议转化为数据，并判断是否有误
 cmd_hdl_t *recvCmd(int peerfd)
 {

@@ -17,6 +17,7 @@ int createListenfd(const char *ip, const int port) {
     addr.sin_family = AF_INET;
     addr.sin_port = htons(port);
     addr.sin_addr.s_addr = inet_addr(ip);
+printf("ip = %s\nport = %d\n", ip, port);
     ret = bind(listenfd, (struct sockaddr *)&addr, sizeof(addr));
     ERROR_CHECK(ret, -1, "bind");
 

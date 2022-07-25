@@ -1,5 +1,8 @@
-#include "server.h"
 
+
+//客户端函数，分析好用户输入的字符后再发送
+
+//分析指令，将指令转化为字符
 cmdType analyzeCmd(char *cmd)
 {
     if(strcmp(cmd, "exit")==0) return CMD_TYPE_EXIT;

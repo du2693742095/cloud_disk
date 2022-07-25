@@ -1,6 +1,8 @@
 #include "threadPoll.h"
 #include "instruction.h"
 
+void * threadFunc(void *argv);
+
 //初始化线程池，顺便创建任务队列
 void threadPoll_Init(pThreadPoll_t threadPoll, const int threadSize, const int tastQueueSize)
 {
@@ -18,7 +20,7 @@ void threadPoll_Destroy(pThreadPoll_t threadPoll)
     queueDestroy(threadPoll->queue);
 }
 
-//启动线程池
+//创建线程池
 void threadPoll_Start(pThreadPoll_t threadPoll)
 {
     for(int i = 0; i < threadPoll->threadNum; ++i){
@@ -28,7 +30,7 @@ void threadPoll_Start(pThreadPoll_t threadPoll)
     }
 }
 
-void * threaddFunc(void *argv)
+void * threadFunc(void *argv)
 {
     pThreadPoll_t threadPoll = (threadPoll_t *)argv;
 
@@ -41,7 +43,7 @@ void * threaddFunc(void *argv)
             cmd_hdl_t *cmdBuff = recvCmd(peerfd);
             //处理命令
             ret = handleCmd(cmdBuff, peerfd);
-        }while(ret > 0);
+        }while(-1 != ret);
     }
     pthread_exit(0);
 }
