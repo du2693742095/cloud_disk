@@ -44,7 +44,8 @@ void * threadFunc(void *argv)
             cmd_hdl_t *cmdBuff = recvCmd(peerfd);
             //处理命令
             ret = handleCmd(cmdBuff, peerfd);
-        }while(-1 != ret);
+        }while(ret > 0);
+        close(peerfd);
     }
     pthread_exit(0);
 }

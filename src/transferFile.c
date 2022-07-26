@@ -159,6 +159,11 @@ int recvFile(char *path, const int peerfd)
         ssize_t msgLen;
         ret = recv(peerfd, &msgLen, sizeof(msgLen), MSG_WAITALL);
         ret = recv(peerfd, buff, msgLen, MSG_WAITALL);
+        if(ret == 0){
+            printf("connection is closed.\n");
+            close(fd);
+            return -1;
+        }
         //RECV_CHECK(ret);
         write(fd, buff, FILE_PER_LENTH);
         
@@ -171,6 +176,5 @@ int recvFile(char *path, const int peerfd)
     printf("has complete 100.00%%\n");
     
     close(fd);
-    close(peerfd);
     return 0;
 }

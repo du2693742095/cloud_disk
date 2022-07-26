@@ -40,7 +40,7 @@ typedef struct {
 //用完cmdType以后记得free！！！！！！
 cmd_hdl_t *recvCmd(int peerfd);
 //处理指令
-int handleCmd(const cmd_hdl_t *cmdBuff, int peerfd);
+int handleCmd(cmd_hdl_t *cmdBuff, int peerfd);
 
 
 #endif

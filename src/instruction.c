@@ -3,7 +3,9 @@
 #include "function.h"
 
 
-//从peerfd中接收传输的小火车，将私有协议转化为数据，并判断是否有误
+/* 从peerfd中接收传输的小火车，将私有协议转化为数据，
+ * 并判断是否有误
+ * 注意：recvCmd必须和handleCmd一起使用，不然无法free(cmdBuff)*/
 cmd_hdl_t *recvCmd(int peerfd)
 {
     //接收指令长度
@@ -36,8 +38,8 @@ cmd_hdl_t *recvCmd(int peerfd)
     return cmdBuff;
 }
 
-//返回是否退出，-1则表示连接断开或者客户端发来exit命令
-int handleCmd(const cmd_hdl_t *cmdBuff, int peerfd)
+//返回是否退出，小于零则表示连接断开或者客户端发来exit命令
+int handleCmd(cmd_hdl_t *cmdBuff, int peerfd)
 {
     int ret = 0;
     switch(cmdBuff->cmd){
@@ -78,6 +80,7 @@ int handleCmd(const cmd_hdl_t *cmdBuff, int peerfd)
         ret = errorCmdFunc(peerfd);
         break;
     }
+    free(cmdBuff);
     return ret;
 }
 

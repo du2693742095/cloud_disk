@@ -13,6 +13,9 @@
         return -1;\
     }
 
+/*返回值int大于零表示执行成功，
+ * 等于零表示连接关闭，
+ * 小于零表示出错*/
 int cdFunc(const cmd_hdl_t *cmdBuff, int peerfd);
 int mvFunc(const cmd_hdl_t *cmdBuff, int peerfd);
 int cpFunc(const cmd_hdl_t *cmdBuff, int peerfd);
