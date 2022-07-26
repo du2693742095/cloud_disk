@@ -6,10 +6,10 @@ void * threadFunc(void *argv);
 //初始化线程池，顺便创建任务队列
 void threadPoll_Init(pThreadPoll_t threadPoll, const int threadSize, const int tastQueueSize)
 {
-    memset(threadPoll, 0, sizeof(threadPoll_t));
     //建立线程池数组
     threadPoll->threads = (pthread_t *)calloc(threadSize, sizeof(pthread_t));
     threadPoll->threadNum = threadSize;
+    threadPoll->queue = (taskQueue_t *)malloc(sizeof(taskQueue_t));
     queueInit(threadPoll->queue, tastQueueSize);
 }
 
@@ -32,6 +32,7 @@ void threadPoll_Start(pThreadPoll_t threadPoll)
 
 void * threadFunc(void *argv)
 {
+    printf("%ld thread is working.\n", pthread_self());
     pThreadPoll_t threadPoll = (threadPoll_t *)argv;
 
     while(true){

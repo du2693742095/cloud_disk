@@ -14,9 +14,11 @@ void queueInit(pTaskQueue_t queue, const int maxQueueSize) //队列初始化
 
 void queueDestroy(pTaskQueue_t queue) //销毁队列
 {
-    pthread_mutex_destroy(&queue->mutex);
-    pthread_cond_destroy(&queue->cond);
-    free(queue);
+    if(queue != NULL){
+        pthread_mutex_destroy(&queue->mutex);
+        pthread_cond_destroy(&queue->cond);
+        free(queue);
+    }
 }
 
 bool queueIsEmpty(const pTaskQueue_t queue) //判空
@@ -46,7 +48,7 @@ void taskEnqueue(pTaskQueue_t queue, const int peerfd) //入队
         //后期可以看要不把所有的申请空间函数加一个判错，写入日志
         qNode->peerfd = peerfd;
         qNode->next = NULL;
-        
+
         //如果是队列为空，那就需要把头尾指针都指向这个元素
         //若非空，就只用加入表中，并把尾指针加一
         if(!queueIsEmpty(queue)){
@@ -75,7 +77,7 @@ int taskDequeue(pTaskQueue_t queue)
     while(queueIsEmpty(queue)){
         pthread_cond_wait(&queue->cond, &queue->mutex);
     }
-    
+
     int retFd = -1;
     qNode_t *temp = queue->front;
     retFd = queue->front->peerfd;
@@ -85,10 +87,10 @@ int taskDequeue(pTaskQueue_t queue)
         queue->front = queue->rear = NULL;
     }
     free(temp);
-    
+
     ret = pthread_mutex_unlock(&queue->mutex);
     THREAD_ERROR_CHECK(ret, "pthread_mutex_unlock in taskDequeue");
-    
+
     return retFd;
 }
 

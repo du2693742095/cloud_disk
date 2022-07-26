@@ -1,14 +1,17 @@
 SRCS:=$(wildcard *.c)
-OBJS:=$(patsubst %.c, %.o, $(SRCS))
-ELF:=server
+OBJECTS:=$(patsubst %.c, %.o, $(SRCS))
 CC:=gcc
-CFLAGS:=-g -Wall
-$(ELF):$(OBJS)
-	gcc $^ -o $@ -pthread -lcrypt -I ../include
+LIBS:= -lpthread
+PATHS:= -I ../include
+BIN:=server
+
+$(BIN):$(OBJECTS)
+	$(CC) $^ -o $@ $(LIBS)
 
 %.o:%.c
-	gcc $^ -o $@ -pthread -lcrypt -I ../include
+	$(CC) -c $^ -o $@ $(LIBS) $(PATHS)
 
+print:
+	echo $(OBJECTS)
 clean:
-		rm -rf  $(ELF)
-
+	rm -rf $(OBJECTS)
