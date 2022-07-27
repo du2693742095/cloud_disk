@@ -1,4 +1,4 @@
-#include "server.h"
+#include "../include/client.h"
 
 //读取配置文件中的key
 char *getKey(const char *line, char *key)
@@ -28,8 +28,7 @@ char *getValue(const char *line, char *value)
 }
 
 //读取配置文件
-int configInit(const char *path, char *ip, int *port, int *connectSize,
-                int *threadNum, int *tastQueueSize)
+int configInit(const char *path, char *ip, int *port)
 {
     FILE *file = fopen(path, "r");
     ERROR_CHECK(file, NULL, "open in configInit");
@@ -58,20 +57,9 @@ int configInit(const char *path, char *ip, int *port, int *connectSize,
             *port = atoi(value);
             count++;
             //printf("port= %d\n", *port);
-        }else if(!strcmp(key, "connectSize")){
-            *connectSize = atoi(value);
-            count++;
-        }
-        else if(!strcmp(key, "thread_num")){
-            *threadNum = atoi(value);
-            count++;
-            //printf("ip = %d\n", *threadNum);
-        }
-        else if(!strcmp(key, "tastQueue_size")){
-            *tastQueueSize = atoi(value);
-            count++;
-            //printf("ip = %d\n", *tastQueueSize);
         }
     }
     return count;
 }
+
+

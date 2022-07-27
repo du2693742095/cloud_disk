@@ -3,7 +3,7 @@ OBJECTS:=$(patsubst %.c, %.o, $(SRCS))
 CC:=gcc
 LIBS:= -lpthread
 PATHS:= -I ../include
-BIN:= ../bin/server
+BIN:=../../bin/client
 
 $(BIN):$(OBJECTS)
 	$(CC) $^ -o $@ $(LIBS)
