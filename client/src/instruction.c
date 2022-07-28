@@ -8,7 +8,7 @@ cmd_hdl_t *analyzeCmd(char *cmd, size_t cmdSize)
 
     //获取指令
     size_t position = 0;
-    for( ; cmd[position] != ' ' || position > cmdSize || cmd[position] != '\n'; ++position){
+    for( ; cmd[position] != ' ' && position < cmdSize && cmd[position] != '\n'; ++position){
         instruction[position] = cmd[position];
     }
     if(!strcmp(instruction, "exit")) cmdBuff->cmd = CMD_TYPE_EXIT;

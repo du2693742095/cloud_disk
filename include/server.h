@@ -53,7 +53,7 @@
 
 /*_____________________configInit.c___________________*/
 //读取配置文件
-void configInit(const char *path, char *ip, int *port, int *connectSize,
+int configInit(const char *path, char *ip, int *port, int *connectSize,
                 int *threadNum, int *tastQueueSize);
 
 

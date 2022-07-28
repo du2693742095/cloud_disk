@@ -1,7 +1,7 @@
-#include "server.h"
-#include "threadPoll.h"
-#include "tcpLink.h"
-#include "taskqueue.h"
+#include "../include/server.h"
+#include "../include/threadPoll.h"
+#include "../include/tcpLink.h"
+#include "../include/taskqueue.h"
 
 int main(int argc, char *argv[])
 {
@@ -44,11 +44,11 @@ int main(int argc, char *argv[])
             for(int i = 0; i < nready; ++i){
 //优化点：获取对面的ip
                 int peerfd = accept(listenfd, NULL, NULL);
+                printf("%d is connected.\n", peerfd);
                 if(peerfd < 0){
 //日志
                     perror("accept");
                 }else{
-                    queueInit(pThreadPoll->queue, taskQueueSize);
                     taskEnqueue(pThreadPoll->queue, peerfd);
                 }
             }

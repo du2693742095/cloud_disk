@@ -1,4 +1,4 @@
-#include "server.h"
+#include "../include/server.h"
 
 //读取配置文件中的key
 char *getKey(const char *line, char *key)

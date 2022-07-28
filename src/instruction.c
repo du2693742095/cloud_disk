@@ -1,6 +1,6 @@
-#include "server.h"
-#include "instruction.h"
-#include "function.h"
+#include "../include/server.h"
+#include "../include/instruction.h"
+#include "../include/function.h"
 
 
 /* 从peerfd中接收传输的小火车，将私有协议转化为数据，
@@ -8,32 +8,13 @@
  * 注意：recvCmd必须和handleCmd一起使用，不然无法free(cmdBuff)*/
 cmd_hdl_t *recvCmd(int peerfd)
 {
-    //接收指令长度
-    int cmdLenth = 0;
-    int ret = recv(peerfd, &cmdLenth, sizeof(int), 0);
-
-    //接收指令剩余部分
-    char buff[MAXCMDLEN];
-    ret = recv(peerfd, buff, cmdLenth, MSG_WAITALL);
-
-    //拆分私有协议，分析出指令和参数
-    //1.指令代码，2.参数个数，3.参数数组
-    int pos = 0;
     cmd_hdl_t *cmdBuff = (cmd_hdl_t *)malloc(sizeof(cmd_hdl_t));
-    memcpy(&cmdBuff->cmd, buff + pos, sizeof(int));//指令代码
-    pos += sizeof(int);
-    memcpy(&cmdBuff->argSize, buff + pos, sizeof(int));//参数长度
-    pos += sizeof(int);
-    //拆分参数
-    int i = 0;
-    while(i < cmdBuff->argSize){
-        //获取指令长度;
-        memcpy(&cmdBuff->args->argLen, buff + pos, sizeof(int));
-        pos += sizeof(int);
-        //复制参数
-        memcpy(cmdBuff->args->arg, buff + pos, cmdBuff->args->argLen);
-        pos += cmdBuff->args->argLen;
-        i++;
+    memset(cmdBuff, 0, sizeof(cmd_hdl_t));
+    int ret = recv(peerfd, cmdBuff, sizeof(cmd_hdl_t), MSG_WAITALL);
+    printf("%d\n",cmdBuff->cmd);
+    //链接关闭
+    if(ret <= 0){
+        return NULL;
     }
     return cmdBuff;
 }
@@ -62,10 +43,10 @@ int handleCmd(cmd_hdl_t *cmdBuff, int peerfd)
         ret = pwdFunc(cmdBuff, peerfd);
         break;
     case CMD_TYPE_PUTS:
-        ret = putsFunc(cmdBuff, peerfd);
+        ret = putsFile(cmdBuff, peerfd);
         break;
     case CMD_TYPE_GETS:
-        ret = getsFunc(cmdBuff, peerfd);
+        ret = getsFile(cmdBuff, peerfd);
         break;
     case CMD_TYPE_RM:
         ret = rmFunc(cmdBuff, peerfd);

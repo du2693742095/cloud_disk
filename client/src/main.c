@@ -11,6 +11,7 @@ int main(int argc, char *argv[])
     int ret = configInit(argv[1], ip, &port);
     ARG_CHECK(ret, 2);
     
+    
     int clientfd = tcpInit(ip, port);
 
     while(true){
@@ -32,7 +33,6 @@ int main(int argc, char *argv[])
         ret = handleCmd(cmdBuff, clientfd);
         //用完指令以后将其free
         free(cmdBuff);
-
         if(ret == 0){
             puts("connection is closed.");
             close(clientfd);

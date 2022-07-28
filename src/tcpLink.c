@@ -24,6 +24,9 @@ int createListenfd(const char *ip, const int port) {
     ret = listen(listenfd, 100);
     ERROR_CHECK(ret, -1, "listen");
     puts("listening socket succeed.");
+    printf("+++++++++++++++++连接到服务器++++++++++++++++++++\n");
+    printf("+++++++++++++++++ip: %s+++++++++++++++++++\n+", ip);
+    printf("++++++++++++++++端口号：%d++++++++++++++++++\n", port);
 
     return listenfd;
 }

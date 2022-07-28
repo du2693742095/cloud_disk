@@ -9,8 +9,8 @@
     if (dir == ret){\
         char info[64] = {0};\
         sprintf(info, "%s: %s", msg, strerror(errno));\
-        send(peerfd, info, strlen(info) - 1, 0);\
-        return -1;\
+        int a = send(peerfd, info, strlen(info) - 1, 0);\
+        return a;\
     }
 
 /*返回值int大于零表示执行成功，
@@ -22,8 +22,10 @@ int cpFunc(const cmd_hdl_t *cmdBuff, int peerfd);
 int lsFunc(const cmd_hdl_t *cmdBuff, int peerfd);
 int llFunc(const cmd_hdl_t *cmdBuff, int peerfd);
 int pwdFunc(const cmd_hdl_t *cmdBuff, int peerfd);
-int putsFunc(const cmd_hdl_t *cmdBuff, int peerfd);
-int getsFunc(const cmd_hdl_t *cmdBuff, int peerfd);
+int putsFile_Uncopy(const cmd_hdl_t *cmdBuff, int peerfd);
+int putsFile(const cmd_hdl_t *cmdBuff, int peerfd);
+int getsFile_Uncopy(const cmd_hdl_t *cmdBuff, int peerfd);
+int getsFile(const cmd_hdl_t *cmdBuff, int peerfd);
 int rmFunc(const cmd_hdl_t *cmdBuff, int peerfd);
 int mkdirFunc(const cmd_hdl_t *cmdBuff, int peerfd);
 int errorCmdFunc(int peerfd);

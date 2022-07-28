@@ -1,5 +1,5 @@
-#include "taskqueue.h"
-#include "threadPoll.h"
+#include "../include/taskqueue.h"
+#include "../include/threadPoll.h"
 
 void queueInit(pTaskQueue_t queue, const int maxQueueSize) //队列初始化
 {
@@ -41,7 +41,7 @@ void taskEnqueue(pTaskQueue_t queue, const int peerfd) //入队
     //第一步就要上锁
     int ret = pthread_mutex_lock(&queue->mutex);
     THREAD_ERROR_CHECK(ret, "pthread_mutex_lock in taskEnqueue");
-
+        
     //判满，队列不满就入队
     if(!queueIsFull(queue)){
         qNode_t *qNode = (qNode_t *)calloc(1, sizeof(qNode_t));
@@ -65,6 +65,7 @@ void taskEnqueue(pTaskQueue_t queue, const int peerfd) //入队
 
     //通知环境变量可以消费了
     pthread_cond_signal(&queue->cond);
+
 }
 
 //出队，返回存储的peerfd，若出错，则返回-1

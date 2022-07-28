@@ -1,5 +1,5 @@
-#include "threadPoll.h"
-#include "instruction.h"
+#include "../include/threadPoll.h"
+#include "../include/instruction.h"
 
 void * threadFunc(void *argv);
 
@@ -42,6 +42,10 @@ void * threadFunc(void *argv)
         do {
             //接收函数
             cmd_hdl_t *cmdBuff = recvCmd(peerfd);
+            if(cmdBuff == NULL){
+                printf("connect is closed\n");
+                break;
+            }
             //处理命令
             ret = handleCmd(cmdBuff, peerfd);
         }while(ret > 0);
