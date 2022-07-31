@@ -64,9 +64,12 @@ void getFileNameByPath(char *path, int pathLen, char *fileName)
 int putsFile_Uncopy(int peerfd,cmd_hdl_t *cmdBuff)
 {
     char *srcPath = cmdBuff->args[0].arg;
-    char *dirPath = cmdBuff->args[1].arg;
     int fd = open(srcPath, O_RDWR);
-    ERROR_CHECK(fd, -1, "open");
+    if(fd == -1){
+        size_t error = -1;
+        int ret = send(peerfd, &error, sizeof(size_t), 0);
+        return ret;
+    }
     
     //用小火车发送目的地址
    // train_t fileName;
@@ -109,7 +112,11 @@ int putsFile(int peerfd,cmd_hdl_t *cmdBuff)
     char *srcPath = cmdBuff->args[0].arg;
     //char *dirPath = cmdBuff->args[1].arg;
     int fd = open(srcPath, O_RDWR);
-    ERROR_CHECK(fd, -1, "open");
+    if(fd == -1){
+        size_t error = -1;
+        int ret = send(peerfd, &error, sizeof(size_t), 0);
+        return ret;
+    }
 
     //用小火车发送文件名
     //train_t fileNameTrain;
@@ -154,13 +161,17 @@ int getFile_Uncopy(int peerfd, cmd_hdl_t *cmdBuff)
     //ret = recv(peerfd, &name, nameSize, 0);
     //printf(" >>file name is %s\n", name);
 
-    char *name = cmdBuff->args[1].arg;
+    //测试 下载的名字是原名字
+    char *name = (char *)cmdBuff->args[0].arg;
     int fd = open(name, O_RDWR | O_CREAT | O_TRUNC, 0644);
-    ERROR_CHECK(fd, -1, NULL);
-    
-    //获取文件信息长度并构建文件
+
+    //获取文件信息长度并构建文
     ssize_t fileLen;
     int ret = recv(peerfd, &fileLen, sizeof(fileLen), 0);
+    if(fileLen == -1){
+        printf("Error arguments.\n");
+        return 1;
+    }
     printf(" >>file size is %ld\n", fileLen);
     ftruncate(fd, fileLen);
 

@@ -87,6 +87,7 @@ int taskDequeue(pTaskQueue_t queue)
     }else{
         queue->front = queue->rear = NULL;
     }
+    queue->size--;
     free(temp);
 
     ret = pthread_mutex_unlock(&queue->mutex);

@@ -29,6 +29,8 @@
 #include <sys/uio.h>    //rendv & writev
 
 #define MSGLEN 1024
+#define FILE_PER_LENTH 1024
+
 
 // 检查参数是否正确
 #define ARG_CHECK(argc, standard)\
@@ -55,6 +57,12 @@
         perror(msg);\
         exit(0);\
     }
+
+//小火车
+typedef struct {
+    ssize_t lenth;
+    char buff[FILE_PER_LENTH];
+} train_t;
 
 
 /*_____________________configInit.c___________________*/

@@ -1,7 +1,7 @@
 SRCS:=$(wildcard *.c)
 OBJECTS:=$(patsubst %.c, %.o, $(SRCS))
 CC:=gcc
-LIBS:= -lpthread
+LIBS:= -lpthread -lcrypt
 PATHS:= -I ../include
 BIN:=../../bin/client
 

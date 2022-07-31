@@ -2,6 +2,8 @@
 #include "../include/tcpLink.h"
 #include "../include/instruction.h"
 
+void registerInClient(const int clientfd);
+
 int main(int argc, char *argv[])
 {
     ARG_CHECK(argc, 2);
@@ -11,8 +13,10 @@ int main(int argc, char *argv[])
     int ret = configInit(argv[1], ip, &port);
     ARG_CHECK(ret, 2);
     
-    
     int clientfd = tcpInit(ip, port);
+
+    //注册
+    registerInClient(clientfd);
 
     while(true){
         char msgBuff[128] = {0};

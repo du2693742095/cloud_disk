@@ -1,4 +1,3 @@
-#include "../include/server.h"
 #include "../include/instruction.h"
 #include "../include/function.h"
 
@@ -43,10 +42,10 @@ int handleCmd(cmd_hdl_t *cmdBuff, int peerfd)
         ret = pwdFunc(cmdBuff, peerfd);
         break;
     case CMD_TYPE_PUTS:
-        ret = putsFile(cmdBuff, peerfd);
+        ret = getsFile_Uncopy(cmdBuff, peerfd);
         break;
     case CMD_TYPE_GETS:
-        ret = getsFile(cmdBuff, peerfd);
+        ret = putsFile_Uncopy(cmdBuff, peerfd);
         break;
     case CMD_TYPE_RM:
         ret = rmFunc(cmdBuff, peerfd);

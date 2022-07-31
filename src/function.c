@@ -1,4 +1,3 @@
-#include "../include/server.h"
 #include "../include/function.h"
 #include "../include/transferFile.h"
 
@@ -14,7 +13,7 @@ int cdFunc(const cmd_hdl_t *cmdBuff, int peerfd)
     }else{
         //error
         send(peerfd, "error arguments.", 17, 0);
-        return  -1;
+        return 1;
     }
 
     int ret = chdir(path);
@@ -33,7 +32,7 @@ int mvFunc(const cmd_hdl_t *cmdBuff, int peerfd)
 {
     if(cmdBuff->argSize != 2){
         send(peerfd, "missing file operand.", 22, 0);
-        return -1;
+        return 1;
     }
 
     const char *oldname = cmdBuff->args[0].arg; 
@@ -153,7 +152,7 @@ int lsFunc(const cmd_hdl_t *cmdBuff, int peerfd)
     //关闭目录流
     closedir(pdir);
 
-    int ret = send(peerfd, resultBuff, strlen(resultBuff), MSG_WAITALL);
+    int ret = send(peerfd, resultBuff, strlen(resultBuff) + 1, MSG_WAITALL);
     return ret;
 }
 
@@ -216,7 +215,7 @@ int llFunc(const cmd_hdl_t *cmdBuff, int peerfd)
                 director->d_name);
     }
     closedir(dp);
-    int ret = send(peerfd, resultBuff, strlen(resultBuff), MSG_WAITALL);
+    int ret = send(peerfd, resultBuff, strlen(resultBuff) + 1, MSG_WAITALL);
     return ret;
 }
 
@@ -225,7 +224,7 @@ int pwdFunc(const cmd_hdl_t *cmdBuff, int peerfd)
 {
     if(cmdBuff->argSize != 0){
         send(peerfd, "error arguments.\n", 17, 0);
-        return -1;
+        return 1;
     }
     char *buff = getcwd(NULL, 0);
     int ret = send(peerfd, buff, strlen(buff), 0);
@@ -239,6 +238,8 @@ int putsFile_Uncopy(const cmd_hdl_t *cmdBuff, int peerfd)
     char *srcPath = (char *)cmdBuff->args[0].arg;
     //char *dirPath = cmdBuff->args[1].arg;
     int fd = open(srcPath, O_RDWR);
+    
+    //表示打开文件失败，给客户端发送一个错误信号
     if(fd == -1){
         size_t error = -1;
         int ret = send(peerfd, &error, sizeof(size_t), 0);
@@ -260,13 +261,13 @@ int putsFile_Uncopy(const cmd_hdl_t *cmdBuff, int peerfd)
     int ret = send(peerfd, &fileLen, sizeof(fileLen), MSG_WAITALL);
     SEND_RECV_CHECK(ret, "send in transferFile_Uncopy"); 
 
-    //通过零拷贝的splice传输文件，一次传输FILE_PRE_LENTH个长度
+    //通过零拷贝的splice传输文件，一次传输MAXBUFF个长度
     int pipefd[2];
     pipe(pipefd);
     ssize_t sendLen = 0;
     while(sendLen < fileLen){
         ssize_t msglen = splice(fd, NULL, pipefd[1], NULL, 
-                                FILE_PER_LENTH, SPLICE_F_MORE);
+                                MAXBUFF, SPLICE_F_MORE);
         msglen = splice(pipefd[0], NULL, peerfd, NULL, msglen, SPLICE_F_MORE);
         //处理链接关闭的情况
         if(0 == msglen) {
@@ -307,17 +308,17 @@ int putsFile(const cmd_hdl_t *cmdBuff, int peerfd)
     int ret = send(peerfd, &fileLen, sizeof(fileLen), MSG_WAITALL);
     SEND_RECV_CHECK(ret, "send in transferFile");
 
-    //构建小火车，一次发送FILE_PER_LENTH个长度的数据
+    //构建小火车，一次发送MAXBUFF个长度的数据
     train_t fileTrain;
     ssize_t sendLen = 0;
     while(sendLen < fileLen){
         memset(&fileTrain, 0, sizeof(fileTrain));
         //读入数据，放到小火车数据段
-        int msglen = read(fd, fileTrain.buff, FILE_PER_LENTH);
-        fileTrain.lenth = msglen;
+        int msglen = read(fd, fileTrain.buff, MAXBUFF);
+        fileTrain.buffSize = msglen;
 
         msglen = send(peerfd, &fileTrain, sizeof(ssize_t)
-                      + fileTrain.lenth, MSG_WAITALL);
+                      + fileTrain.buffSize, MSG_WAITALL);
         SEND_RECV_CHECK(msglen, "send in transferFile");
         sendLen += msglen;
     }
@@ -326,7 +327,7 @@ int putsFile(const cmd_hdl_t *cmdBuff, int peerfd)
 }
 
 //命令为: get 源文件 目的地
-int getFile_Uncopy(const cmd_hdl_t *cmdBuff, int peerfd)
+int getsFile_Uncopy(const cmd_hdl_t *cmdBuff, int peerfd)
 {
     //接收传输文件名
     //char name[100] = {0};
@@ -354,7 +355,7 @@ int getFile_Uncopy(const cmd_hdl_t *cmdBuff, int peerfd)
     pipe(pipefd);
     ssize_t recvLen = 0;
     do {
-        ssize_t msglen = splice(peerfd, NULL, pipefd[1], NULL, FILE_PER_LENTH, SPLICE_F_MORE);
+        ssize_t msglen = splice(peerfd, NULL, pipefd[1], NULL, MAXBUFF, SPLICE_F_MORE);
         msglen = splice(pipefd[0], NULL, fd, NULL, msglen, SPLICE_F_MORE);
         //RECV_CHECK(msglen);
 
@@ -394,13 +395,13 @@ int getsFile(const cmd_hdl_t *cmdBuff, int peerfd)
     //构建小火车，一次发送MSGLEN个长度的数据
     ssize_t recvLen = 0;
     do {
-        char buff[FILE_PER_LENTH];
+        char buff[MAXBUFF];
         //读入数据，放到小火车数据段
         ssize_t msgLen;
         ret = recv(peerfd, &msgLen, sizeof(msgLen), MSG_WAITALL);
         ret = recv(peerfd, buff, msgLen, MSG_WAITALL);
         //RECV_CHECK(ret);
-        write(fd, buff, FILE_PER_LENTH);
+        write(fd, buff, MAXBUFF);
         
         recvLen += msgLen;
         //printf("has complete %5.2lf%%\r", 
@@ -456,8 +457,10 @@ int mkdirFunc(const cmd_hdl_t *cmdBuff, int peerfd)
         send(peerfd, "error arguments.\n", 17, 0);
         return -1;
     }
-    int ret = mkdir(cmdBuff->args[0].arg, 0664);
-    return ret;
+    int ret = mkdir(cmdBuff->args[0].arg, 0775);
+    char info[] = "mkdir succeed.";
+    send(peerfd, info, sizeof(info), 0);
+    return ret + 1;
 }
 
 //错误指令

@@ -4,13 +4,7 @@
 #include "client.h"
 #include "instruction.h"
 
-#define FILE_PER_LENTH 1024
 
-//小火车
-typedef struct {
-    ssize_t lenth;
-    char buff[FILE_PER_LENTH];
-} train_t;
 
 
 int handleCmd(cmd_hdl_t *cmdBuff, int clientfd);

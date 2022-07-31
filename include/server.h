@@ -2,10 +2,12 @@
 #define __SERVE_H__
 
 #define _GNU_SOURCE
+#define _XOPEN_SOURCE
 
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h> 
+#include <strings.h>
 #include <stdbool.h>
 
 #include <dirent.h> //directorys
@@ -50,6 +52,23 @@
         }\
     } while(0)
 
+//定义send和recv返回值为0或者为-1时发生错误，直接返回-1
+#define SEND_RECV_CHECK(ret, msg)\
+    if(0 == ret){\
+        fprintf(stderr, "%s: connect is closed", msg);\
+        return -1;\
+    }else if(ret < 0){\
+        perror(msg);\
+        return -1;\
+    }
+
+//定义小火车
+#define MAXBUFF 4096
+
+typedef struct{
+    size_t buffSize;
+    char buff[MAXBUFF];
+} train_t;
 
 /*_____________________configInit.c___________________*/
 //读取配置文件
